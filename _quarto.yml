@@ -17,7 +17,7 @@ format:
     css: styles.css
     toc: true
 
-output-dir: docs # Quarto가 렌더링한 결과물을 docs/ 폴더에 저장
+output-dir: docs # Quarto의 렌더링 결과물을 docs/ 폴더에 저장
 
 
 
