@@ -1,7 +1,41 @@
 ---
 title: "BlueNote-website"
+format:
+  html:
+    theme: cosmo # 웹사이트 테마 (다양한 테마 중 선택 가능)
+    css: styles.css # 추가 CSS 파일 (선택 사항)
+    toc: true # 목차 활성화
+editor: visual # VS Code에서 시각 편집기를 사용할 수 있도록 설정
 ---
 
-This is a Quarto website.
+# Welcome to My AI-Powered Quarto Website!
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+This website demonstrates the power of **Quarto** for creating dynamic web content, seamlessly integrating both **Python** and **R** code.
+
+---
+
+## Python Example: Basic Calculation and Data Display
+
+Let's start with a simple Python code block to perform a calculation and display a small DataFrame.
+
+```{python}
+# 필요한 라이브러리 임포트
+import pandas as pd
+
+# 간단한 계산
+num1 = 50
+num2 = 15
+sum_result = num1 + num2
+product_result = num1 * num2
+
+print(f"Python: The sum of {num1} and {num2} is: {sum_result}")
+print(f"Python: The product of {num1} and {num2} is: {product_result}")
+
+# 간단한 데이터프레임 생성 및 출력
+data_python = {'Item': ['Laptop', 'Mouse', 'Keyboard'],
+                'Price (USD)': [1200, 25, 75],
+                'Quantity': [10, 50, 30]}
+df_python = pd.DataFrame(data_python)
+
+print("\n--- Python DataFrame ---")
+print(df_python)
