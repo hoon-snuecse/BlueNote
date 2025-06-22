@@ -1,0 +1,65 @@
+# 워크플로우의 이름. GitHub Actions 탭에 표시됩니다.
+name: Render and Publish Quarto Website
+
+# 이 워크플로우가 언제 실행될지 정의합니다.
+on:
+  push:
+    branches: main # 'main' 브랜치에 코드가 푸시될 때마다 워크플로우를 실행합니다.
+
+# 워크플로우가 수행할 작업(job)을 정의합니다.
+jobs:
+  build-and-deploy: # 작업의 ID (자유롭게 지정 가능)
+    runs-on: ubuntu-latest # 이 작업이 실행될 가상 환경을 지정합니다 (GitHub Actions에서 제공하는 Ubuntu 환경).
+
+    # 이 작업이 수행할 단계(step)들을 정의합니다.
+    steps:
+      # 1. 레포지토리 코드 체크아웃: GitHub 레포지토리의 코드를 가상 환경으로 가져옵니다.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Python 환경 설정 (AI 스크립트를 위해 필요):
+      #   Quarto 문서 내에서 Python 코드를 실행하거나 Python 기반 AI 스크립트를 사용한다면 필요합니다.
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13' # 사용할 Python 버전 지정 (예: '3.9', '3.11')
+
+      # 3. Python 의존성 설치 (AI 스크립트가 요구하는 라이브러리 설치):
+      #   Quarto 문서 내의 Python 코드에서 사용하는 라이브러리를 설치합니다.
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas scikit-learn numpy # 필요한 라이브러리를 추가/변경하세요. (예: tensorflow, pytorch, transformers 등)
+
+      # 4. R 환경 설정 (AI 스크립트를 위해 필요):
+      #   Quarto 문서 내에서 R 코드를 실행하거나 R 기반 AI 스크립트를 사용한다면 필요합니다.
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2 # R 설치 액션
+        with:
+          r-version: '4.5.1' # 사용할 R 버전 지정 (예: '4.3.2')
+
+      # 5. R 의존성 설치 (AI 스크립트가 요구하는 라이브러리 설치):
+      #   Quarto 문서 내의 R 코드에서 사용하는 라이브러리를 설치합니다.
+      - name: Install R dependencies
+        run: |
+          R -e 'install.packages(c("tidyverse", "caret", "tidymodels"))' # 필요한 라이브러리를 추가/변경하세요.
+
+      # 6. Quarto CLI 설치:
+      #   Quarto 명령어를 실행하기 위해 필요한 Quarto CLI를 설치합니다.
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      # 7. Quarto 프로젝트 렌더링:
+      #   프로젝트 내의 .qmd 파일들을 HTML(또는 다른 형식)로 변환하여 웹사이트를 빌드합니다.
+      - name: Render Quarto project
+        run: quarto render
+
+      # 8. GitHub Pages로 배포:
+      #   렌더링된 웹사이트 파일을 GitHub Pages에 배포합니다.
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4 # GitHub Pages 배포를 위한 외부 액션
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }} # GitHub에서 자동으로 제공하는 토큰 (보안)
+          publish_dir: ./docs # Quarto가 웹사이트를 렌더링한 결과물이 있는 디렉토리 (주로 'docs' 또는 '_site')
+          # Quarto 프로젝트의 _quarto.yml 파일에 output-dir: docs로 설정했다면 ./docs를 사용합니다.
+          # 만약 _quarto.yml에 output-dir 설정을 하지 않았다면, 기본값인 ./_site 또는 ./public을 확인하세요.
