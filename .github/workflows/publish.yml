@@ -2,24 +2,21 @@ name: Render and Publish Quarto Website
 
 on:
   push:
-    branches: main # 'main' 브랜치에 코드가 푸시될 때마다 워크플로우를 실행합니다.
+    branches: main
 
 permissions:
-  contents: write # 레포지토리 콘텐츠에 쓰기 권한 부여
-  pages: write    # GitHub Pages 배포를 위한 쓰기 권한 부여
-  id-token: write # GitHub Pages 및 OIDC (OpenID Connect) 인증을 위한 토큰 권한 부여
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest # 이 작업이 실행될 가상 환경을 지정합니다.
+    runs-on: ubuntu-latest
 
     steps:
-      # 1. 레포지토리 코드 체크아웃
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. R 코드 존재 여부 확인 (조건부 실행을 위한 준비)
-      #    '.qmd' 파일 중 R 코드 블록이 있는지 확인하는 임시 파일 생성 (실제 R 코드 감지X, .qmd 파일 변경 여부만 확인)
       - name: Check for R files
         id: check_r_files
         run: |
@@ -30,8 +27,6 @@ jobs:
           fi
         shell: bash
 
-      # 3. Python 코드 존재 여부 확인 (조건부 실행을 위한 준비)
-      #    '.qmd' 파일 중 Python 코드 블록이 있는지 확인하는 임시 파일 생성 (실제 Python 코드 감지X, .qmd 파일 변경 여부만 확인)
       - name: Check for Python files
         id: check_py_files
         run: |
@@ -42,51 +37,42 @@ jobs:
           fi
         shell: bash
 
-      # 4. Python 환경 설정 (index.qmd 또는 다른 .qmd 파일에 Python 코드가 있을 경우에만 실행)
       - name: Set up Python
         uses: actions/setup-python@v5
-        if: steps.check_py_files.outputs.py_files_changed == 'true' # .qmd 파일 변경 시에만 실행
+        if: steps.check_py_files.outputs.py_files_changed == 'true'
         with:
-          python-version: '3.13' # 로컬 환경과 동일한 3.13 버전 지정
+          python-version: '3.13' # GitHub Actions에서 3.13.x 최신 버전을 설치합니다.
 
-      # 5. Python 의존성 설치 (Jupyter, pyyaml, nbformat 포함)
-      #    Quarto가 파이썬 코드를 실행하려면 Jupyter가 필요하며, 'No module named 'yaml'' 오류 해결을 위해 pyyaml이, 'nbformat' 오류 해결을 위해 nbformat이 필요합니다.
       - name: Install Python dependencies
-        if: steps.check_py_files.outputs.py_files_changed == 'true' # .qmd 파일 변경 시에만 실행
+        if: steps.check_py_files.outputs.py_files_changed == 'true'
         run: |
-          python -m pip install --upgrade pip # pip 자체를 최신 버전으로 업데이트
-          pip install jupyter # Quarto에서 Python 코드를 실행하는 데 필요한 Jupyter 설치
-          pip install pyyaml # 'No module named 'yaml'' 오류 해결
-          pip install nbformat # 'No module named 'nbformat'' 오류 해결
+          python -m pip install --upgrade pip # 현재 설정된 Python 환경의 pip를 업데이트
+          # Quarto의 Python 코드 실행에 필수적인 Jupyter 관련 패키지들
+          python -m pip install ipykernel pyyaml nbformat jupyter_client jupyter_core
 
-          # 여러분의 AI/데이터 분석 스크립트에 필요한 라이브러리들을 여기에 추가/변경하세요.
-          pip install pandas scikit-learn numpy
+          # 여러분의 코드에 필요한 기타 라이브러리들
+          python -m pip install pandas scikit-learn numpy
+          # 만약 추가적인 라이브러리가 있다면 여기에 python -m pip install [library_name] 형태로 추가하세요.
 
-      # 6. R 환경 설정 (index.qmd 또는 다른 .qmd 파일에 R 코드가 있을 경우에만 실행)
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
-        if: steps.check_r_files.outputs.r_files_changed == 'true' # .qmd 파일 변경 시에만 실행
+        if: steps.check_r_files.outputs.r_files_changed == 'true'
         with:
           r-version: '4.x'
 
-      # 7. R 의존성 설치 (index.qmd 또는 다른 .qmd 파일에 R 코드가 있을 경우에만 실행)
       - name: Install R dependencies
-        if: steps.check_r_files.outputs.r_files_changed == 'true' # .qmd 파일 변경 시에만 실행
+        if: steps.check_r_files.outputs.r_files_changed == 'true'
         run: |
           R -e 'install.packages(c("tidyverse", "caret", "tidymodels"))'
 
-      # 8. Quarto CLI 설치 (항상 필요)
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
 
-      # 9. Quarto 프로젝트 렌더링 (항상 필요)
       - name: Render Quarto project
         run: quarto render
 
-      # 10. GitHub Pages로 배포 (항상 필요)
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs # Quarto가 웹사이트를 렌더링한 결과물이 있는 디렉토리 (_quarto.yml의 output-dir과 일치해야 함)
-          
+          publish_dir: ./docs
