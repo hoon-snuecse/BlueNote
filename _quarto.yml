@@ -27,7 +27,7 @@ jupyter-paths:
   - "/opt/hostedtoolcache/Python/3.13.0/x64/bin/python3" # 3.13.0 버전이 설치될 경우
   - "/opt/hostedtoolcache/Python/3.13/x64/bin/python3"   # 3.13 전체 버전을 포괄하는 일반적인 경로
 
-output-dir: docs # Quarto의 렌더링 결과물을 docs/ 폴더에 저장
+# output-dir: docs # Quarto의 렌더링 결과물을 docs/ 폴더에 저장
 
 
 
