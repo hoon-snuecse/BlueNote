@@ -18,6 +18,7 @@ This website demonstrates the power of **Quarto** for creating dynamic web conte
 
 Let's start with a simple Python code block to perform a calculation and display a small DataFrame.
 
+
 ```{python}
 # 필요한 라이브러리 임포트
 import pandas as pd
@@ -39,3 +40,4 @@ df_python = pd.DataFrame(data_python)
 
 print("\n--- Python DataFrame ---")
 print(df_python)
+```
