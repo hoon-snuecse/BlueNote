@@ -17,6 +17,16 @@ format:
     css: styles.css
     toc: true
 
+# Quarto가 GitHub Actions 환경에서 사용할 Python 인터프리터 경로를 명시적으로 지정
+# 이 경로는 GitHub Actions의 'ubuntu-latest' 러너에 'actions/setup-python' 액션이
+# Python 3.13을 설치하는 일반적인 위치입니다.
+jupyter-paths:
+  - "/opt/hostedtoolcache/Python/3.13.3/x64/bin/python3" # 3.13.3 버전이 설치될 경우
+  - "/opt/hostedtoolcache/Python/3.13.2/x64/bin/python3" # 3.13.2 버전이 설치될 경우
+  - "/opt/hostedtoolcache/Python/3.13.1/x64/bin/python3" # 3.13.1 버전이 설치될 경우
+  - "/opt/hostedtoolcache/Python/3.13.0/x64/bin/python3" # 3.13.0 버전이 설치될 경우
+  - "/opt/hostedtoolcache/Python/3.13/x64/bin/python3"   # 3.13 전체 버전을 포괄하는 일반적인 경로
+
 output-dir: docs # Quarto의 렌더링 결과물을 docs/ 폴더에 저장
 
 
