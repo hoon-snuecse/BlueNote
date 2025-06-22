@@ -49,14 +49,18 @@ jobs:
         with:
           python-version: '3.13' # 로컬 환경과 동일한 3.13 버전 지정
 
-      # 5. Python 의존성 설치 (index.qmd 또는 다른 .qmd 파일에 Python 코드가 있을 경우에만 실행)
+      # 5. Python 의존성 설치 (Jupyter, pyyaml, nbformat 포함)
+      #    Quarto가 파이썬 코드를 실행하려면 Jupyter가 필요하며, 'No module named 'yaml'' 오류 해결을 위해 pyyaml이, 'nbformat' 오류 해결을 위해 nbformat이 필요합니다.
       - name: Install Python dependencies
         if: steps.check_py_files.outputs.py_files_changed == 'true' # .qmd 파일 변경 시에만 실행
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip # pip 자체를 최신 버전으로 업데이트
           pip install jupyter # Quarto에서 Python 코드를 실행하는 데 필요한 Jupyter 설치
           pip install pyyaml # 'No module named 'yaml'' 오류 해결
-          pip install pandas scikit-learn numpy # 여러분의 AI/데이터 분석 스크립트에 필요한 라이브러리들
+          pip install nbformat # 'No module named 'nbformat'' 오류 해결
+
+          # 여러분의 AI/데이터 분석 스크립트에 필요한 라이브러리들을 여기에 추가/변경하세요.
+          pip install pandas scikit-learn numpy
 
       # 6. R 환경 설정 (index.qmd 또는 다른 .qmd 파일에 R 코드가 있을 경우에만 실행)
       - name: Set up R
@@ -85,3 +89,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs # Quarto가 웹사이트를 렌더링한 결과물이 있는 디렉토리 (_quarto.yml의 output-dir과 일치해야 함)
+          
